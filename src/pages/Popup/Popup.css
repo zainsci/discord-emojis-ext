@@ -4,53 +4,8 @@
   overflow: hidden;
 }
 
-header {
-  width: 100%;
-  margin-bottom: 2rem;
-
-  button {
-    padding: 0 1rem;
-    height: 2rem;
-    background-color: rgb(80, 89, 106);
-    color: white;
-    font-weight: bold;
-    border-radius: 0.25rem;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-}
-
-.emoji__list__wrapper {
-  overflow: auto;
-}
 .emoji__list {
   width: calc(24rem + 1rem);
-  display: flex;
-  justify-content: start;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.emoji__item {
-  padding: 0.5rem;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(1, 1, 1, 0.4);
-  }
-
-  img {
-    width: 56px;
-    height: 56px;
-    overflow: hidden;
-  }
 }
 
 .copied {

@@ -16,16 +16,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-button {
-  padding: 0 1rem;
-  height: 2rem;
-  background-color: rgb(80, 89, 106);
-  color: white;
-  font-weight: bold;
-  border-radius: 0.25rem;
-
-  &:hover {
-    opacity: 0.9;
-  }
-}

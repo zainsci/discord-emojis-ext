@@ -103,19 +103,21 @@ const Popup = () => {
           setEmojiList={setEmojis}
         />
       )}
-      <header className="w-full flex justify-between items-center">
+      <header className="w-full flex justify-between items-center mb-6">
         <h2 className="text-white text-xl font-bold">Discord Emojis</h2>
         <Button onClick={() => setShowAdd(!showAdd)}>Add</Button>
       </header>
-      <Input
-        name="search"
-        placeholder="Search"
-        className="w-full mb-8"
-        onChange={handleFilter}
-        innerRef={searchRef}
-      />
-      <div className="emoji__list__wrapper">
-        <ul className="emoji__list">
+      <div className="px-2 mb-8">
+        <Input
+          name="search"
+          placeholder="Search"
+          className="w-full"
+          onChange={handleFilter}
+          innerRef={searchRef}
+        />
+      </div>
+      <div className="overflow-auto bg-gray-900 h-full p-4 rounded-md">
+        <ul className="emoji__list flex justify-start items-start flex-wrap gap-1">
           {emojis &&
             emojis
               .filter((item) =>
@@ -123,10 +125,16 @@ const Popup = () => {
               )
               .map((emo) => (
                 <li
-                  className={`relative emoji__item ID_${extractID(emo.url)}`}
+                  className={`relative p-2 overflow-hidden flex justify-center items-center cursor-pointer hover:bg-gray-800 rounded-md emoji__item ID_${extractID(
+                    emo.url
+                  )}`}
                   onClick={() => getEmojiLink(emo.url)}
                 >
-                  <img src={`${emo.url}${EMOJI_SIZE_PARAM}`} alt={emo.name} />
+                  <img
+                    src={`${emo.url}${EMOJI_SIZE_PARAM}`}
+                    alt={emo.name}
+                    className="w-14 h-14 overflow-hidden"
+                  />
                 </li>
               ))}
         </ul>
