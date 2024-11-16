@@ -5,7 +5,8 @@
 }
 
 .emoji__list {
-  width: calc(24rem + 1rem);
+  width: calc(24rem + 2rem);
+  margin-bottom: 3rem;
 }
 
 .copied {
@@ -28,4 +29,18 @@
     z-index: 500;
     background: rgba(0, 0, 0, 0.6);
   }
+}
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 0.25rem;
 }

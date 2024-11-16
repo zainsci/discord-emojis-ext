@@ -34,7 +34,9 @@ const Popup = () => {
   const [emojis, setEmojis] = useState([]);
   const [filter, setFilter] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [showImportExport, setShowImportExport] = useState(false);
   const searchRef = useRef(null);
+  const [delStatus, setDelStatus] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -65,6 +67,12 @@ const Popup = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LS_EMOJI_KEY, JSON.stringify(emojis));
+    }
+  }, [emojis]);
+
   function loadInitEmojis() {
     if (typeof window !== 'undefined') {
       localStorage.setItem(LS_EMOJI_KEY, JSON.stringify(initEmojis));
@@ -93,6 +101,14 @@ const Popup = () => {
     setFilter(e.target.value);
   }
 
+  function handleEmojisClick(url) {
+    if (delStatus) {
+      const newEmojis = emojis.filter((item) => item.url !== url);
+      setEmojis(newEmojis);
+    } else {
+      getEmojiLink(url);
+    }
+  }
   return (
     <div className="App bg-gray-700">
       {showAdd && (
@@ -103,9 +119,43 @@ const Popup = () => {
           setEmojiList={setEmojis}
         />
       )}
-      <header className="w-full flex justify-between items-center mb-6">
+
+      {showImportExport && (
+        <ImportExportWindow
+          show={showImportExport}
+          setShow={setShowImportExport}
+          emojis={JSON.stringify(emojis)}
+          setEmojiList={setEmojis}
+        />
+      )}
+
+      <header className="w-full flex flex-col mb-6 gap-4">
         <h2 className="text-white text-xl font-bold">Discord Emojis</h2>
-        <Button onClick={() => setShowAdd(!showAdd)}>Add</Button>
+
+        <div className="text-white flex items-center justify-between gap-4">
+          <div>Count: {emojis.length}</div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowImportExport(!showImportExport)}
+              className="text-sm h-8 px-4"
+            >
+              Import/Export
+            </Button>
+            <Button
+              onClick={() => setShowAdd(!showAdd)}
+              className="text-sm h-8 px-4"
+            >
+              Add
+            </Button>
+            <Button
+              onClick={() => setDelStatus(!delStatus)}
+              className="bg-red-600 text-sm h-8 px-4"
+            >
+              Del
+            </Button>
+          </div>
+        </div>
       </header>
       <div className="px-2 mb-8">
         <Input
@@ -116,7 +166,7 @@ const Popup = () => {
           innerRef={searchRef}
         />
       </div>
-      <div className="overflow-auto bg-gray-900 h-full p-4 rounded-md">
+      <div className="h-[22rem] overflow-y-auto overflow-x-hidden bg-gray-900 p-4 rounded-md">
         <ul className="emoji__list flex justify-start items-start flex-wrap gap-1">
           {emojis &&
             emojis
@@ -125,10 +175,12 @@ const Popup = () => {
               )
               .map((emo) => (
                 <li
-                  className={`relative p-2 overflow-hidden flex justify-center items-center cursor-pointer hover:bg-gray-800 rounded-md emoji__item ID_${extractID(
+                  className={`relative border p-2 overflow-hidden flex justify-center items-center cursor-pointer hover:bg-gray-800 rounded-md emoji__item ID_${extractID(
                     emo.url
-                  )}`}
-                  onClick={() => getEmojiLink(emo.url)}
+                  )} ${
+                    delStatus ? 'border border-red-400' : 'border-transparent'
+                  }`}
+                  onClick={() => handleEmojisClick(emo.url)}
                 >
                   <img
                     src={`${emo.url}${EMOJI_SIZE_PARAM}`}
@@ -209,9 +261,64 @@ export function AddEmoji({ show, setShow, emojiList, setEmojiList }) {
       <Button className="w-full" onClick={onAddEmoji}>
         Add
       </Button>
+      <Button className="w-full" onClick={onAddEmoji}>
+        Add
+      </Button>
       <Button className="w-full bg-red-600" onClick={() => setShow(!show)}>
         Cancel
       </Button>
+    </div>
+  );
+}
+
+function ImportExportWindow({ emojis, show, setShow, setEmojiList }) {
+  const [emojiJson, setEmojiJson] = useState('');
+
+  function saveAsJson() {
+    const blob = new Blob([emojis], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'emojis.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importEmojis() {
+    const emojisList = JSON.parse(emojiJson ?? '[]');
+    if (typeof window !== 'undefined') {
+      const currEmojis =
+        JSON.parse(localStorage.getItem(LS_EMOJI_KEY) ?? '[]') ?? [];
+
+      setEmojiList((emojis) => [...currEmojis, ...emojisList]);
+      localStorage.setItem(LS_EMOJI_KEY, JSON.stringify(currEmojis));
+      setShow(!show);
+    }
+  }
+
+  return (
+    <div className="absolute top-0 left-0 right-0 w-full h-full bg-gray-700 flex flex-col justify-center items-center p-6 gap-4 z-50">
+      <div className="w-full h-full flex flex-col gap-4 justify-start">
+        <div className="flex justify-end">
+          <Button className="bg-blue-700" onClick={saveAsJson}>
+            Export
+          </Button>
+        </div>
+
+        <textarea
+          name="e"
+          id="emojiJson"
+          value={emojiJson}
+          onChange={(e) => setEmojiJson(e.target.value)}
+        ></textarea>
+
+        <Button className="bg-green-700" onClick={importEmojis}>
+          Import
+        </Button>
+        <Button className="bg-red-700" onClick={() => setShow(!show)}>
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 }
