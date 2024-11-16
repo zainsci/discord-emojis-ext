@@ -4,7 +4,7 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 const LS_EMOJI_KEY = '__emojis';
-const EMOJI_SIZE_PARAM = '?size=56&quality=lossless';
+const EMOJI_SIZE_PARAM = '?size=48&quality=lossless';
 
 /**
  * Emoji Object
