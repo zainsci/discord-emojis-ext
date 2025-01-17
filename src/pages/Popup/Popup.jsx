@@ -4,31 +4,23 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 const LS_EMOJI_KEY = '__emojis';
-const EMOJI_SIZE_PARAM = '?size=48&quality=lossless';
+const EMOJI_URL = 'https://cdn.discordapp.com/emojis/';
+const EMOJI_PARAMS = {
+  size: 48,
+  quality: 'lossless',
+  animated: true,
+};
 
-/**
- * Emoji Object
- * name
- * url
- * tags
- */
-const initEmojis = [
-  {
-    name: 'Sticky Dance',
-    url: 'https://cdn.discordapp.com/emojis/1202567809285095485.gif',
-    tags: ['dance', 'lights'],
-  },
-  {
-    name: 'Anime Girl Dance',
-    url: 'https://cdn.discordapp.com/emojis/515424732116549652.gif',
-    tags: ['dance', 'anime'],
-  },
-  {
-    name: 'Zero2 Jumping',
-    url: 'https://cdn.discordapp.com/emojis/1086770239162810459.gif',
-    tags: ['joy', 'jumping', 'anime', 'zero2'],
-  },
-];
+const initEmojis = [];
+
+function buildEmojiUrl(emojiID, params) {
+  const url = new URL(EMOJI_URL + emojiID + '.webp');
+  Object.keys(params).forEach((key) => {
+    url.searchParams.set(key, params[key]);
+  });
+
+  return url.toString();
+}
 
 const Popup = () => {
   const [emojis, setEmojis] = useState([]);
@@ -79,12 +71,11 @@ const Popup = () => {
     }
   }
 
-  function getEmojiLink(emojiUrl) {
-    navigator.clipboard.writeText(`${emojiUrl}${EMOJI_SIZE_PARAM}`);
+  function getEmojiLink(emojiID) {
+    navigator.clipboard.writeText(buildEmojiUrl(emojiID, EMOJI_PARAMS));
 
-    const thisEmojiID = extractID(emojiUrl);
     if (typeof window !== 'undefined') {
-      const thisElem = document.querySelector('.ID_' + thisEmojiID);
+      const thisElem = document.querySelector('.ID_' + emojiID);
       thisElem.classList.add('copied');
 
       setInterval(() => {
@@ -93,20 +84,16 @@ const Popup = () => {
     }
   }
 
-  function extractID(link) {
-    return link.split('/')[link.split('/').length - 1].split('.')[0];
-  }
-
   function handleFilter(e) {
     setFilter(e.target.value);
   }
 
-  function handleEmojisClick(url) {
+  function handleEmojisClick(id) {
     if (delStatus) {
-      const newEmojis = emojis.filter((item) => item.url !== url);
+      const newEmojis = emojis.filter((item) => item.id !== id);
       setEmojis(newEmojis);
     } else {
-      getEmojiLink(url);
+      getEmojiLink(id);
     }
   }
   return (
@@ -175,15 +162,16 @@ const Popup = () => {
               )
               .map((emo) => (
                 <li
-                  className={`relative border p-2 overflow-hidden flex justify-center items-center cursor-pointer hover:bg-gray-800 rounded-md emoji__item ID_${extractID(
-                    emo.url
-                  )} ${
+                  className={`relative border p-2 overflow-hidden flex justify-center items-center cursor-pointer hover:bg-gray-800 rounded-md emoji__item ID_${
+                    emo.id
+                  } ${
                     delStatus ? 'border border-red-400' : 'border-transparent'
                   }`}
-                  onClick={() => handleEmojisClick(emo.url)}
+                  onClick={() => handleEmojisClick(emo.id)}
+                  key={emo.id}
                 >
                   <img
-                    src={`${emo.url}${EMOJI_SIZE_PARAM}`}
+                    src={buildEmojiUrl(emo.id, EMOJI_PARAMS)}
                     alt={emo.name}
                     className="w-14 h-14 overflow-hidden"
                   />
@@ -200,7 +188,7 @@ export default Popup;
 export function AddEmoji({ show, setShow, emojiList, setEmojiList }) {
   const [emoji, setEmoji] = useState({
     name: '',
-    url: '',
+    id: '',
     tags: '',
   });
 
@@ -243,9 +231,9 @@ export function AddEmoji({ show, setShow, emojiList, setEmojiList }) {
       />
 
       <Input
-        name="url"
-        placeholder="URL"
-        value={emoji.url}
+        name="id"
+        placeholder="Emoji ID"
+        value={emoji.id}
         setValue={onHandleOnChange}
         className="w-full"
       />
